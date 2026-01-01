@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../extensions/extensions.dart';
 import '../models/stock_model.dart';
 import '../models/toushi_shintaku_model.dart';
 
@@ -210,7 +211,7 @@ class _DragScrollBar extends StatelessWidget {
       width: 44,
       margin: const EdgeInsets.only(right: 16, top: 16, bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFC58A),
+        color: Colors.orangeAccent.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.black12),
       ),
@@ -220,7 +221,10 @@ class _DragScrollBar extends StatelessWidget {
         child: const Center(
           child: RotatedBox(
             quarterTurns: 1,
-            child: Text('DRAG', style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 2)),
+            child: Text(
+              '◀️　DRAG　▶️',
+              style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 2, color: Colors.grey),
+            ),
           ),
         ),
       ),
@@ -601,7 +605,7 @@ class _DateFlipCardState extends State<DateFlipCard> with SingleTickerProviderSt
             ),
 
             SizedBox(
-              height: 150,
+              height: 120,
 
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
@@ -674,11 +678,10 @@ class _FundDayRowsView extends StatelessWidget {
           builder: (BuildContext context, BoxConstraints c) {
             return Wrap(
               spacing: 10,
-              runSpacing: 4,
               children: <Widget>[
-                _MiniPill(label: '投資', value: formatYen(r.investedYen)),
-                _MiniPill(label: '評価', value: formatYen(r.valuationYen)),
-                _MiniPill(label: '損益', value: formatYen(profit)),
+                _MiniPill(value: formatYen(r.investedYen)),
+                _MiniPill(value: formatYen(r.valuationYen)),
+                _MiniPill(value: formatYen(profit)),
               ],
             );
           },
@@ -691,9 +694,8 @@ class _FundDayRowsView extends StatelessWidget {
 //////////////////////////////////////////////////////////
 
 class _MiniPill extends StatelessWidget {
-  const _MiniPill({required this.label, required this.value});
+  const _MiniPill({required this.value});
 
-  final String label;
   final String value;
 
   ///
@@ -702,6 +704,8 @@ class _MiniPill extends StatelessWidget {
     final Color bg = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Container(
+      width: context.screenSize.width / 5,
+      alignment: Alignment.topRight,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: bg,
@@ -711,8 +715,6 @@ class _MiniPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
-          const SizedBox(width: 6),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 170),
             child: Text(value, style: const TextStyle(fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
