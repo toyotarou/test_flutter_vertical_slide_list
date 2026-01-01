@@ -2,17 +2,23 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-class CardFlipListPage extends StatefulWidget {
-  const CardFlipListPage({super.key});
+import '../models/stock_model.dart';
+import '../models/toushi_shintaku_model.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.stockTickerMap, required this.toushiShintakuRelationalMap});
+
+  final Map<String, List<StockModel>> stockTickerMap;
+  final Map<int, List<ToushiShintakuModel>> toushiShintakuRelationalMap;
 
   ///
   @override
-  State<CardFlipListPage> createState() => _CardFlipListPageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 //-----
 
-class _CardFlipListPageState extends State<CardFlipListPage> {
+class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
 
   static const double _dragToScrollScale = 2.2;
@@ -93,15 +99,6 @@ class _CardFlipListPageState extends State<CardFlipListPage> {
   }
 
   ///
-  void _setVisibleCount(int value) {
-    setState(() {
-      final int maxCount = _groups.length.clamp(1, 9999);
-      _visibleCount = value.clamp(1, maxCount);
-      _syncOffsetsLength();
-    });
-  }
-
-  ///
   void _setOffset(int index, int newOffset) {
     if (index < 0 || index >= _offsets.length) {
       return;
@@ -134,8 +131,6 @@ class _CardFlipListPageState extends State<CardFlipListPage> {
     final bool globalDirty = _formatDate(_pendingDate) != _formatDate(_baseDate);
     final bool isDirty = globalDirty || anyChildDirty;
 
-    final String helperText = isDirty ? '適用を押すと、すべてのカードがこの日付に揃います（子カードのズレもリセット）' : '上下スワイプで日付変更（現在は全カードと同じ）';
-
     final int maxCount = _groups.length.clamp(1, 9999);
     final int itemCount = _visibleCount.clamp(1, maxCount);
 
@@ -149,15 +144,6 @@ class _CardFlipListPageState extends State<CardFlipListPage> {
               onSwipeUp: () => _shiftPendingBy(1),
               onSwipeDown: () => _shiftPendingBy(-1),
               onApply: isDirty ? _applyPendingToAll : null,
-              helperText: helperText,
-            ),
-
-            _TopControls(
-              visibleCount: itemCount,
-              maxCount: maxCount,
-              onMinus: () => _setVisibleCount(itemCount - 1),
-              onPlus: () => _setVisibleCount(itemCount + 1),
-              onSliderChanged: (double v) => _setVisibleCount(v.round()),
             ),
 
             const Divider(height: 1),
@@ -212,56 +198,6 @@ class _CardFlipListPageState extends State<CardFlipListPage> {
 
 //////////////////////////////////////////////////////////
 
-class _TopControls extends StatelessWidget {
-  const _TopControls({
-    required this.visibleCount,
-    required this.maxCount,
-    required this.onMinus,
-    required this.onPlus,
-    required this.onSliderChanged,
-  });
-
-  final int visibleCount;
-  final int maxCount;
-  final VoidCallback onMinus;
-  final VoidCallback onPlus;
-  final ValueChanged<double> onSliderChanged;
-
-  ///
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
-      child: Row(
-        children: <Widget>[
-          FilledButton.tonal(onPressed: visibleCount > 1 ? onMinus : null, child: const Text('-')),
-          const SizedBox(width: 8),
-          FilledButton.tonal(onPressed: visibleCount < maxCount ? onPlus : null, child: const Text('+')),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('表示カード数（ID数）: $visibleCount / $maxCount', style: const TextStyle(fontWeight: FontWeight.w700)),
-                Slider(
-                  value: visibleCount.toDouble(),
-                  min: 1,
-                  max: maxCount.toDouble(),
-                  divisions: (maxCount - 1).clamp(1, 200),
-                  label: '$visibleCount',
-                  onChanged: onSliderChanged,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-//////////////////////////////////////////////////////////
-
 class _DragScrollBar extends StatelessWidget {
   const _DragScrollBar({required this.onDragDelta});
 
@@ -301,7 +237,6 @@ class _GlobalFlipCard extends StatelessWidget {
     required this.onSwipeUp,
     required this.onSwipeDown,
     required this.onApply,
-    required this.helperText,
   });
 
   final String label;
@@ -309,7 +244,6 @@ class _GlobalFlipCard extends StatelessWidget {
   final VoidCallback onSwipeUp;
   final VoidCallback onSwipeDown;
   final VoidCallback? onApply;
-  final String helperText;
 
   ///
   @override
@@ -335,12 +269,7 @@ class _GlobalFlipCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _GlobalFlipBody(
-                  date: date,
-                  onSwipeUp: onSwipeUp,
-                  onSwipeDown: onSwipeDown,
-                  helperText: helperText,
-                ),
+                child: _GlobalFlipBody(date: date, onSwipeUp: onSwipeUp, onSwipeDown: onSwipeDown),
               ),
               const SizedBox(width: 12),
               FilledButton(onPressed: onApply, child: const Text('適用')),
@@ -355,17 +284,11 @@ class _GlobalFlipCard extends StatelessWidget {
 ////////////////////////////////////////////////////////
 
 class _GlobalFlipBody extends StatefulWidget {
-  const _GlobalFlipBody({
-    required this.date,
-    required this.onSwipeUp,
-    required this.onSwipeDown,
-    required this.helperText,
-  });
+  const _GlobalFlipBody({required this.date, required this.onSwipeUp, required this.onSwipeDown});
 
   final DateTime date;
   final VoidCallback onSwipeUp;
   final VoidCallback onSwipeDown;
-  final String helperText;
 
   ///
   @override
@@ -479,13 +402,7 @@ class _GlobalFlipBodyState extends State<_GlobalFlipBody> with SingleTickerProvi
             nextText: _nextText,
             direction: _flipDirection,
             leadingIcon: Icons.public,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            widget.helperText,
-            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+            from: 'top_parent',
           ),
         ],
       ),
@@ -668,51 +585,43 @@ class _DateFlipCardState extends State<DateFlipCard> with SingleTickerProviderSt
         elevation: 2,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: SizedBox(
-          height: 200,
-          child: Row(
-            children: <Widget>[
-              Container(
-                width: 84,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  border: const Border(right: BorderSide(color: Color(0x22000000))),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      '${widget.fundId}',
-                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    const Text('ID', style: TextStyle(fontSize: 11)),
-                  ],
-                ),
+
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: _FlipDateText(
+                controller: _controller,
+                frontText: _frontText,
+                nextText: _nextText,
+                direction: _flipDirection,
+                from: 'child_card',
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+            ),
+
+            SizedBox(
+              height: 150,
+
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+                child: DefaultTextStyle(
+                  style: const TextStyle(fontSize: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      Text(
+                        '${widget.fundId}',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
                       Text(
                         widget.fundName,
                         style: const TextStyle(fontWeight: FontWeight.w800),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-
-                      _FlipDateText(
-                        controller: _controller,
-                        frontText: _frontText,
-                        nextText: _nextText,
-                        direction: _flipDirection,
-                        leadingIcon: Icons.event,
                       ),
 
                       const SizedBox(height: 8),
@@ -722,9 +631,8 @@ class _DateFlipCardState extends State<DateFlipCard> with SingleTickerProviderSt
                   ),
                 ),
               ),
-              const _SwipeHint(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -817,59 +725,26 @@ class _MiniPill extends StatelessWidget {
 
 //////////////////////////////////////////////////////////
 
-class _SwipeHint extends StatelessWidget {
-  const _SwipeHint();
-
-  ///
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 44,
-      height: 118,
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Padding(
-          padding: EdgeInsets.only(right: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(Icons.keyboard_arrow_up, size: 18),
-              SizedBox(height: 2),
-              Text('明日', style: TextStyle(fontSize: 11)),
-              SizedBox(height: 10),
-              Text('昨日', style: TextStyle(fontSize: 11)),
-              SizedBox(height: 2),
-              Icon(Icons.keyboard_arrow_down, size: 18),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-//////////////////////////////////////////////////////////
-
 class _FlipDateText extends StatelessWidget {
   const _FlipDateText({
     required this.controller,
     required this.frontText,
     required this.nextText,
     required this.direction,
-    required this.leadingIcon,
+    this.leadingIcon,
+    required this.from,
   });
 
   final AnimationController controller;
   final String frontText;
   final String? nextText;
   final int direction;
-  final IconData leadingIcon;
+  final IconData? leadingIcon;
+  final String from;
 
   ///
   @override
   Widget build(BuildContext context) {
-    final TextStyle? baseStyle = Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800);
-
     return AnimatedBuilder(
       animation: controller,
       builder: (BuildContext context, _) {
@@ -895,15 +770,23 @@ class _FlipDateText extends StatelessWidget {
           transform: m,
           child: Opacity(
             opacity: 0.2 + fade * 0.8,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(leadingIcon, size: 18),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(text, style: baseStyle, overflow: TextOverflow.ellipsis),
-                ),
-              ],
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                vertical: (from == 'top_parent') ? 20 : 10,
+                horizontal: (from == 'top_parent') ? 30 : 10,
+              ),
+
+              color: (from == 'top_parent') ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (from == 'top_parent') ...<Widget>[Icon(leadingIcon, size: 18), const SizedBox(width: 8)],
+
+                  Flexible(
+                    child: Text(text, style: TextStyle(color: (from == 'top_parent') ? Colors.white : Colors.grey)),
+                  ),
+                ],
+              ),
             ),
           ),
         );

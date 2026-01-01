@@ -5,7 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'controllers/controllers_mixin.dart';
-import 'screens/card_flip_list_page.dart';
+import 'screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +55,9 @@ class _MyAppState extends ConsumerState<MyApp> with ControllersMixin<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    stockNotifier.getAllStockData();
+    toushiShintakuNotifier.getAllToushiShintakuData();
   }
 
   ///
@@ -82,7 +85,13 @@ class _MyAppState extends ConsumerState<MyApp> with ControllersMixin<MyApp> {
       themeMode: ThemeMode.dark,
       title: 'LIFETIME LOG',
       debugShowCheckedModeBanner: false,
-      home: GestureDetector(onTap: () => primaryFocus?.unfocus(), child: CardFlipListPage()),
+      home: GestureDetector(
+        onTap: () => primaryFocus?.unfocus(),
+        child: HomeScreen(
+          stockTickerMap: stockState.stockTickerMap,
+          toushiShintakuRelationalMap: toushiShintakuState.toushiShintakuRelationalMap,
+        ),
+      ),
     );
   }
 }

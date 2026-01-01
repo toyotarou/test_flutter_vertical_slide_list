@@ -29,7 +29,7 @@ class AppParam extends _$AppParam {
   ///
   @override
   AppParamState build() {
-    return AppParamState();
+    return const AppParamState();
   }
 
   ///
