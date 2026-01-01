@@ -23,7 +23,8 @@ mixin _$AppParamState {
   Map<String, List<StockModel>> get keepStockTickerMap =>
       throw _privateConstructorUsedError;
   Map<int, List<ToushiShintakuModel>> get keepToushiShintakuRelationalMap =>
-      throw _privateConstructorUsedError;
+      throw _privateConstructorUsedError; //=====
+  bool get displayInvestIsToushiShintaku => throw _privateConstructorUsedError;
 
   /// Create a copy of AppParamState
   /// with the given fields replaced by the non-null parameter values.
@@ -42,7 +43,8 @@ abstract class $AppParamStateCopyWith<$Res> {
       {Map<String, List<StockModel>> keepStockMap,
       Map<String, List<ToushiShintakuModel>> keepToushiShintakuMap,
       Map<String, List<StockModel>> keepStockTickerMap,
-      Map<int, List<ToushiShintakuModel>> keepToushiShintakuRelationalMap});
+      Map<int, List<ToushiShintakuModel>> keepToushiShintakuRelationalMap,
+      bool displayInvestIsToushiShintaku});
 }
 
 /// @nodoc
@@ -64,6 +66,7 @@ class _$AppParamStateCopyWithImpl<$Res, $Val extends AppParamState>
     Object? keepToushiShintakuMap = null,
     Object? keepStockTickerMap = null,
     Object? keepToushiShintakuRelationalMap = null,
+    Object? displayInvestIsToushiShintaku = null,
   }) {
     return _then(_value.copyWith(
       keepStockMap: null == keepStockMap
@@ -82,6 +85,10 @@ class _$AppParamStateCopyWithImpl<$Res, $Val extends AppParamState>
           ? _value.keepToushiShintakuRelationalMap
           : keepToushiShintakuRelationalMap // ignore: cast_nullable_to_non_nullable
               as Map<int, List<ToushiShintakuModel>>,
+      displayInvestIsToushiShintaku: null == displayInvestIsToushiShintaku
+          ? _value.displayInvestIsToushiShintaku
+          : displayInvestIsToushiShintaku // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -98,7 +105,8 @@ abstract class _$$AppParamStateImplCopyWith<$Res>
       {Map<String, List<StockModel>> keepStockMap,
       Map<String, List<ToushiShintakuModel>> keepToushiShintakuMap,
       Map<String, List<StockModel>> keepStockTickerMap,
-      Map<int, List<ToushiShintakuModel>> keepToushiShintakuRelationalMap});
+      Map<int, List<ToushiShintakuModel>> keepToushiShintakuRelationalMap,
+      bool displayInvestIsToushiShintaku});
 }
 
 /// @nodoc
@@ -118,6 +126,7 @@ class __$$AppParamStateImplCopyWithImpl<$Res>
     Object? keepToushiShintakuMap = null,
     Object? keepStockTickerMap = null,
     Object? keepToushiShintakuRelationalMap = null,
+    Object? displayInvestIsToushiShintaku = null,
   }) {
     return _then(_$AppParamStateImpl(
       keepStockMap: null == keepStockMap
@@ -136,6 +145,10 @@ class __$$AppParamStateImplCopyWithImpl<$Res>
           ? _value._keepToushiShintakuRelationalMap
           : keepToushiShintakuRelationalMap // ignore: cast_nullable_to_non_nullable
               as Map<int, List<ToushiShintakuModel>>,
+      displayInvestIsToushiShintaku: null == displayInvestIsToushiShintaku
+          ? _value.displayInvestIsToushiShintaku
+          : displayInvestIsToushiShintaku // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -151,7 +164,8 @@ class _$AppParamStateImpl implements _AppParamState {
       final Map<String, List<StockModel>> keepStockTickerMap =
           const <String, List<StockModel>>{},
       final Map<int, List<ToushiShintakuModel>> keepToushiShintakuRelationalMap =
-          const <int, List<ToushiShintakuModel>>{}})
+          const <int, List<ToushiShintakuModel>>{},
+      this.displayInvestIsToushiShintaku = false})
       : _keepStockMap = keepStockMap,
         _keepToushiShintakuMap = keepToushiShintakuMap,
         _keepStockTickerMap = keepStockTickerMap,
@@ -196,9 +210,14 @@ class _$AppParamStateImpl implements _AppParamState {
     return EqualUnmodifiableMapView(_keepToushiShintakuRelationalMap);
   }
 
+//=====
+  @override
+  @JsonKey()
+  final bool displayInvestIsToushiShintaku;
+
   @override
   String toString() {
-    return 'AppParamState(keepStockMap: $keepStockMap, keepToushiShintakuMap: $keepToushiShintakuMap, keepStockTickerMap: $keepStockTickerMap, keepToushiShintakuRelationalMap: $keepToushiShintakuRelationalMap)';
+    return 'AppParamState(keepStockMap: $keepStockMap, keepToushiShintakuMap: $keepToushiShintakuMap, keepStockTickerMap: $keepStockTickerMap, keepToushiShintakuRelationalMap: $keepToushiShintakuRelationalMap, displayInvestIsToushiShintaku: $displayInvestIsToushiShintaku)';
   }
 
   @override
@@ -214,7 +233,11 @@ class _$AppParamStateImpl implements _AppParamState {
                 .equals(other._keepStockTickerMap, _keepStockTickerMap) &&
             const DeepCollectionEquality().equals(
                 other._keepToushiShintakuRelationalMap,
-                _keepToushiShintakuRelationalMap));
+                _keepToushiShintakuRelationalMap) &&
+            (identical(other.displayInvestIsToushiShintaku,
+                    displayInvestIsToushiShintaku) ||
+                other.displayInvestIsToushiShintaku ==
+                    displayInvestIsToushiShintaku));
   }
 
   @override
@@ -223,7 +246,8 @@ class _$AppParamStateImpl implements _AppParamState {
       const DeepCollectionEquality().hash(_keepStockMap),
       const DeepCollectionEquality().hash(_keepToushiShintakuMap),
       const DeepCollectionEquality().hash(_keepStockTickerMap),
-      const DeepCollectionEquality().hash(_keepToushiShintakuRelationalMap));
+      const DeepCollectionEquality().hash(_keepToushiShintakuRelationalMap),
+      displayInvestIsToushiShintaku);
 
   /// Create a copy of AppParamState
   /// with the given fields replaced by the non-null parameter values.
@@ -239,8 +263,8 @@ abstract class _AppParamState implements AppParamState {
       {final Map<String, List<StockModel>> keepStockMap,
       final Map<String, List<ToushiShintakuModel>> keepToushiShintakuMap,
       final Map<String, List<StockModel>> keepStockTickerMap,
-      final Map<int, List<ToushiShintakuModel>>
-          keepToushiShintakuRelationalMap}) = _$AppParamStateImpl;
+      final Map<int, List<ToushiShintakuModel>> keepToushiShintakuRelationalMap,
+      final bool displayInvestIsToushiShintaku}) = _$AppParamStateImpl;
 
   @override
   Map<String, List<StockModel>> get keepStockMap;
@@ -249,7 +273,10 @@ abstract class _AppParamState implements AppParamState {
   @override
   Map<String, List<StockModel>> get keepStockTickerMap;
   @override
-  Map<int, List<ToushiShintakuModel>> get keepToushiShintakuRelationalMap;
+  Map<int, List<ToushiShintakuModel>>
+      get keepToushiShintakuRelationalMap; //=====
+  @override
+  bool get displayInvestIsToushiShintaku;
 
   /// Create a copy of AppParamState
   /// with the given fields replaced by the non-null parameter values.

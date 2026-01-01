@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../controllers/controllers_mixin.dart';
 import '../extensions/extensions.dart';
 import '../models/stock_model.dart';
 import '../models/toushi_shintaku_model.dart';
@@ -54,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _pendingDate = _baseDate;
 
-    _visibleCount = math.min(_visibleCount, _groups.length.clamp(1, 9999));
+    _visibleCount = _groups.length;
+
     _syncOffsetsLength();
   }
 
@@ -139,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: <Widget>[
-            _GlobalFlipCard(
+            GlobalFlipCard(
               label: '全体',
               date: _pendingDate,
               onSwipeUp: () => _shiftPendingBy(1),
@@ -234,8 +237,9 @@ class _DragScrollBar extends StatelessWidget {
 
 //////////////////////////////////////////////////////////
 
-class _GlobalFlipCard extends StatelessWidget {
-  const _GlobalFlipCard({
+class GlobalFlipCard extends ConsumerStatefulWidget {
+  const GlobalFlipCard({
+    super.key,
     required this.label,
     required this.date,
     required this.onSwipeUp,
@@ -249,6 +253,11 @@ class _GlobalFlipCard extends StatelessWidget {
   final VoidCallback onSwipeDown;
   final VoidCallback? onApply;
 
+  @override
+  ConsumerState<GlobalFlipCard> createState() => _GlobalFlipCardState();
+}
+
+class _GlobalFlipCardState extends ConsumerState<GlobalFlipCard> with ControllersMixin<GlobalFlipCard> {
   ///
   @override
   Widget build(BuildContext context) {
@@ -261,22 +270,29 @@ class _GlobalFlipCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: <Widget>[
-              Container(
-                width: 84,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+              const SizedBox(width: 15),
+              Column(
+                children: <Widget>[
+                  Switch(
+                    value: appParamState.displayInvestIsToushiShintaku,
+                    onChanged: (bool value) {
+                      appParamNotifier.setDisplayInvestIsToushiShintaku(flag: value);
+                    },
+                  ),
+
+                  Text(
+                    (appParamState.displayInvestIsToushiShintaku) ? '投資信託' : '株',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
+
+              const SizedBox(width: 15),
               Expanded(
-                child: _GlobalFlipBody(date: date, onSwipeUp: onSwipeUp, onSwipeDown: onSwipeDown),
+                child: _GlobalFlipBody(date: widget.date, onSwipeUp: widget.onSwipeUp, onSwipeDown: widget.onSwipeDown),
               ),
               const SizedBox(width: 12),
-              FilledButton(onPressed: onApply, child: const Text('適用')),
+              FilledButton(onPressed: widget.onApply, child: const Text('適用')),
             ],
           ),
         ),

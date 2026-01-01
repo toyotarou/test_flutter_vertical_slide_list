@@ -19,6 +19,9 @@ class AppParamState with _$AppParamState {
 
     @Default(<String, List<StockModel>>{}) Map<String, List<StockModel>> keepStockTickerMap,
     @Default(<int, List<ToushiShintakuModel>>{}) Map<int, List<ToushiShintakuModel>> keepToushiShintakuRelationalMap,
+
+    //=====
+    @Default(false) bool displayInvestIsToushiShintaku,
   }) = _AppParamState;
 }
 
@@ -46,4 +49,9 @@ class AppParam extends _$AppParam {
   ///
   void setKeepToushiShintakuRelationalMap({required Map<int, List<ToushiShintakuModel>> map}) =>
       state = state.copyWith(keepToushiShintakuRelationalMap: map);
+
+  //=====
+
+  void setDisplayInvestIsToushiShintaku({required bool flag}) =>
+      state = state.copyWith(displayInvestIsToushiShintaku: flag);
 }
